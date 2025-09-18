@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   userInfo.innerHTML = `<div class="font-semibold">${current.name || current.username}</div><div class="text-xs" style="color:#8b98a6">${current.role}</div>`;
-  document.getElementById('logout')?.addEventListener('click', () => { localStorage.removeItem('attendease_current'); window.location.href = 'landing.html'; });
-  document.getElementById('logout2')?.addEventListener('click', () => { localStorage.removeItem('attendease_current'); window.location.href = 'landing.html'; });
+  document.getElementById('logout')?.addEventListener('click', () => { localStorage.removeItem('attendease_current'); window.location.href = 'index.html'; });
+  document.getElementById('logout2')?.addEventListener('click', () => { localStorage.removeItem('attendease_current'); window.location.href = 'index.html'; });
 
   // ======= FILTER FUNCTIONS =======
   const myUsers = () => lsGet('attendease_users', []).filter(u => u.schoolId === current.schoolId);
@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.onclick = () => {
         if (confirm('Delete school and all data?')) {
           localStorage.clear();
-          window.location.href = 'landing.html';
+          window.location.href = 'index.html';
         }
       };
     } else if (deleteBtn) {
