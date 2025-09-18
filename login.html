@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login — Attendease</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body, html {
+      margin:0;
+      height:100%;
+      font-family:Inter,system-ui,Arial;
+      color:#e6eef0;
+      overflow:hidden;
+    }
+    /* Gradient animated background */
+    #gradientOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(120deg, #020617, #04132c, #06263d, #04132c, #020617);
+      background-size: 400% 400%;
+      animation: gradientMove 20s ease infinite;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    canvas#bgShapes {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+    }
+    .glass {
+      background: rgba(10,12,18,0.6);
+      border-radius:16px;
+      padding:28px;
+      max-width:820px;
+      margin:auto;
+      box-shadow: 0 12px 60px rgba(2,6,23,0.8);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .input {
+      background:#071022;
+      border:1px solid rgba(255,255,255,0.04);
+      padding:12px;
+      border-radius:10px;
+      color:#e6eef0;
+      width:100%
+    }
+    .muted { color:#9aa6b2; font-size:14px }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+  <div id="gradientOverlay"></div>
+  <canvas id="bgShapes"></canvas>
+
+  <div class="glass relative z-10 w-full max-w-2xl">
+    <div class="flex items-center gap-6">
+      <div style="width:84px;height:84px;background:linear-gradient(135deg,#04293a,#093a5b);border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="3" width="20" height="14" rx="2" stroke="#9be7d4" stroke-width="1.2"/>
+          <circle cx="8" cy="9" r="1.6" fill="#9be7d4"/>
+          <rect x="16" y="7" width="4" height="2" rx="1" fill="#9be7d4"/>
+        </svg>
+      </div>
+      <div>
+        <h2 style="margin:0;font-size:26px;font-weight:700">Attendease</h2>
+        <div class="muted">Modern dark UI • Live background • Offline-first</div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px" class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="muted">School</label>
+        <select id="school_select" class="input mt-2"></select>
+      </div>
+      <div>
+        <label class="muted">Role</label>
+        <select id="role" class="input mt-2">
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="forms" class="mt-6">
+      <div id="teacher_area">
+        <input id="teacher_user" placeholder="Teacher username" class="input" />
+        <input id="teacher_pass" placeholder="Teacher password" type="password" class="input mt-3" />
+        <div class="flex gap-3 mt-3">
+          <button id="teacher_login" class="px-4 py-2 rounded bg-gradient-to-r from-green-300 to-emerald-400 text-black">Login</button>
+          <a href="register.html" class="muted self-center">Register</a>
+        </div>
+      </div>
+
+      <div id="admin_area" class="hidden">
+        <input id="admin_user" placeholder="Admin username" class="input" />
+        <input id="admin_pass" placeholder="Admin password" type="password" class="input mt-3" />
+        <div class="flex gap-3 mt-3">
+          <button id="admin_login" class="px-4 py-2 rounded bg-gradient-to-r from-green-300 to-emerald-400 text-black">Login</button>
+          <a href="register.html" class="muted self-center">Register</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 muted">Demo: admin demo_admin / demo_pass • teacher demo_teacher / demo_teacher_pass</div>
+    <div class="mt-2"><a href="#" id="recover_link" class="muted underline">Forgot admin credentials? Recover by school email</a></div>
+  </div>
+
+<script>
+// =====================
+// Animated background shapes
+// =====================
+const canvas = document.getElementById("bgShapes");
+const ctx = canvas.getContext("2d");
+let shapes = [];
+const colors = ['#22c55e','#10b981','#06b6d4','#3b82f6','#8b5cf6'];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// Generate shapes
+for (let i=0; i<50; i++) {
+  shapes.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    size: Math.random()*40+20,
+    dx: (Math.random()-0.5)*1.2,
+    dy: (Math.random()-0.5)*1.2,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    angle: Math.random()*Math.PI*2,
+    dAngle: (Math.random()-0.5)*0.03,
+    scale: Math.random()*0.5+0.5,
+    dScale: (Math.random()-0.5)*0.005
+  });
+}
+
+function animate() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  shapes.forEach(s=>{
+    s.x += s.dx; s.y += s.dy;
+    s.angle += s.dAngle; s.scale += s.dScale;
+    if(s.x<0||s.x>canvas.width) s.dx*=-1;
+    if(s.y<0||s.y>canvas.height) s.dy*=-1;
+    if(s.scale<0.3||s.scale>1) s.dScale*=-1;
+
+    ctx.save();
+    ctx.translate(s.x,s.y);
+    ctx.rotate(s.angle);
+    ctx.scale(s.scale,s.scale);
+    ctx.fillStyle = s.color;
+    ctx.beginPath();
+    ctx.moveTo(0,-s.size/2);
+    for(let j=1;j<6;j++){
+      const theta = j*Math.PI*2/5;
+      ctx.lineTo(Math.sin(theta)*s.size/2, -Math.cos(theta)*s.size/2);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+<script>
+// ==============
+// LocalStorage Demo Setup + Auth
+// ==============
+function uid(p='id'){return p+'_'+Math.random().toString(36).slice(2,9);}
+function lsGet(k,d){try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;}}
+function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+(function ensureDemo(){
+  const schools = lsGet('attendease_schools',[]);
+  if(schools.length===0){
+    const sch = { id:'sch_demo', name:'Demo School', email:'demo@demo.com', created:new Date().toISOString() };
+    schools.push(sch); lsSet('attendease_schools', schools);
+    const users = [];
+    users.push({ id:'u_demo_admin', username:'demo_admin', password:'demo_pass', role:'admin', name:'Demo Admin', schoolId: sch.id, email: sch.email });
+    users.push({ id:'u_demo_teacher', username:'demo_teacher', password:'demo_teacher_pass', role:'teacher', name:'Demo Teacher', schoolId: sch.id });
+    lsSet('attendease_users', users);
+    const cls=[]; for(let i=1;i<=12;i++){ ['A','B','C'].forEach(s=> cls.push({name:'Class '+i+s})); } lsSet('attendease_classes', cls);
+    const studs = [];
+    studs.push({ id: uid('s'), name:'Rohan', class:'Class 1A', roll:1, ref:'REF'+Math.random().toString(36).slice(2,8).toUpperCase(), schoolId: sch.id });
+    studs.push({ id: uid('s'), name:'Geeta', class:'Class 1A', roll:2, ref:'REF'+Math.random().toString(36).slice(2,8).toUpperCase(), schoolId: sch.id });
+    lsSet('attendease_students', studs);
+    lsSet('attendease_assigns', [{ id: uid('as'), teacherId:'u_demo_teacher', className:'Class 1A', schoolId: sch.id }]);
+  }
+})();
+
+function populateSchools(){
+  const sel = document.getElementById('school_select'); sel.innerHTML='';
+  const schools = lsGet('attendease_schools',[]);
+  schools.forEach(s => { const o=document.createElement('option'); o.value=s.id; o.text=s.name; sel.appendChild(o); });
+}
+populateSchools();
+
+document.getElementById('role').onchange = (e) => {
+  const v = e.target.value;
+  document.getElementById('teacher_area').style.display = v==='teacher' ? 'block' : 'none';
+  document.getElementById('admin_area').style.display = v==='admin' ? 'block' : 'none';
+};
+
+document.getElementById('teacher_login').onclick = ()=>{
+  const schoolId = document.getElementById('school_select').value;
+  const username = document.getElementById('teacher_user').value.trim();
+  const pass = document.getElementById('teacher_pass').value.trim();
+  const users = lsGet('attendease_users',[]);
+  const u = users.find(x => x.role==='teacher' && x.username===username && x.password===pass && x.schoolId===schoolId);
+  if(!u){ alert('Invalid teacher credentials'); return; }
+  lsSet('attendease_current', u);
+  window.location.href = 'dashboard.html';
+};
+
+document.getElementById('admin_login').onclick = ()=>{
+  const schoolId = document.getElementById('school_select').value;
+  const user = document.getElementById('admin_user').value.trim();
+  const pass = document.getElementById('admin_pass').value.trim();
+  const users = lsGet('attendease_users',[]);
+  const u = users.find(x=> x.role==='admin' && x.username===user && x.password===pass && x.schoolId===schoolId);
+  if(!u){ alert('Invalid admin credentials'); return; }
+  lsSet('attendease_current', u);
+  window.location.href = 'dashboard.html';
+};
+
+document.getElementById('recover_link').onclick = (e)=>{
+  e.preventDefault();
+  const email = prompt('Enter registered school email to recover admin credentials:');
+  if(!email) return;
+  const schools = lsGet('attendease_schools',[]);
+  const school = schools.find(s=> (s.email||'').toLowerCase()===email.toLowerCase());
+  if(!school){ alert('No school found with that email'); return; }
+  const users = lsGet('attendease_users',[]);
+  const admin = users.find(u=> u.role==='admin' && u.schoolId===school.id);
+  if(!admin){ alert('No admin found for that school'); return; }
+  alert(`Admin username: ${admin.username}\nPassword: ${admin.password}`);
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Attendease</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#071023,#041021);
+  color: #1e4873;
+  font-family: Inter, Arial, sans-serif;
+  overflow-x: hidden;
+}
+.canvas-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.hero {
+  position: relative;
+  z-index: 10;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: transform .3s, box-shadow .3s;
+}
+.glass:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+}
+.typing {
+  display: inline-block;
+  border-right: 3px solid rgba(52,211,153,0.9);
+  padding-right: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* Live logo animation */
+.logo-live {
+  width: 120px;
+  height: 120px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg,#04293a,#093a5b);
+  box-shadow: 0 8px 40px rgba(6,10,20,0.7);
+  animation: pulseGlow 3s infinite ease-in-out, slowRotate 15s linear infinite;
+}
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(34,197,94,0.6), 0 0 40px rgba(34,197,94,0.3);}
+  50% { box-shadow: 0 0 30px rgba(6,182,212,0.7), 0 0 60px rgba(6,182,212,0.4);}
+}
+@keyframes slowRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Feature cards hover */
+.feature-card {
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+.feature-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 20px rgba(34,197,94,0.4);
+}
+
+/* Feature icon animations */
+.feature-icon {
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+.feature-card:hover .feature-icon {
+  transform: scale(1.15) rotate(8deg);
+  box-shadow: 0 0 25px rgba(255,255,255,0.3);
+}
+</style>
+</head>
+<body>
+<div class="canvas-wrap"><canvas id="bgCanvas"></canvas></div>
+
+<nav class="max-w-6xl mx-auto px-6 py-6 relative z-20 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-300 to-emerald-400 flex items-center justify-center text-[#042018] font-bold">A</div>
+    <div class="text-xl font-semibold">Attendease</div>
+  </div>
+  <div class="space-x-4">
+    <a href="register.html" class="px-4 py-2 bg-gradient-to-r from-green-300 to-emerald-400 text-[#042018] rounded-lg">Register</a>
+    <a href="login.html" class="px-4 py-2 border border-white/10 rounded-lg">Login</a>
+  </div>
+</nav>
+
+<header class="hero relative max-w-6xl mx-auto px-6 z-10">
+  <!-- Left Side -->
+  <div class="flex-1 max-w-xl text-center md:text-left">
+    <!-- Live Logo -->
+    <div class="logo-live mx-auto md:mx-0">
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none">
+        <rect x="1.5" y="3" width="21" height="14" rx="2" stroke="#9be7d4" stroke-width="1.2"/>
+        <circle cx="7" cy="9" r="1.8" fill="#9be7d4"/>
+        <rect x="15" y="7" width="5" height="2" rx="1" fill="#9be7d4"/>
+        <path d="M4 19c1-3 5-4 8-4s7 1 8 4" stroke="#9be7d4" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Typing Animation -->
+    <h1 class="text-5xl font-extrabold mb-4" id="heroText">
+      <span class="typing" id="typing"></span>
+    </h1>
+    <p class="text-slate-300 mb-6">
+      Runs fully offline in the browser using LocalStorage. QR scanning, reference IDs, reports and exports — no server required.
+    </p>
+    <div class="flex gap-4 justify-center md:justify-start">
+      <a href="register.html" class="px-6 py-3 bg-gradient-to-r from-green-300 to-emerald-400 rounded-lg text-[#042018]">Register School</a>
+      <a href="login.html" class="px-6 py-3 border rounded-lg">Login</a>
+    </div>
+  </div>
+</header>
+
+<!-- Modern Features -->
+<main class="max-w-6xl mx-auto px-6 py-16 relative z-10">
+  <h2 class="text-2xl font-bold mb-10 text-center">Features</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    <!-- Offline-first -->
+    <div class="glass feature-card p-6 flex flex-col items-center text-center">
+      <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-green-400 to-emerald-500 shadow-lg shadow-emerald-500/40 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6 3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h3 class="font-semibold text-lg">Offline-first</h3>
+      <p class="text-slate-300 text-sm mt-1">All data stays in your browser.</p>
+    </div>
+
+    <!-- QR & Camera -->
+    <div class="glass feature-card p-6 flex flex-col items-center text-center">
+      <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/40 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276a2 2 0 000-3.448L15 2m0 0v8m0-8H9m0 0L4.447 4.276a2 2 0 000 3.448L9 10m6 4l4.553-2.276a2 2 0 000-3.448L15 6m0 8v8m0-8H9m0 0L4.447 9.724a2 2 0 000 3.448L9 14"/>
+        </svg>
+      </div>
+      <h3 class="font-semibold text-lg">QR & Camera</h3>
+      <p class="text-slate-300 text-sm mt-1">Fast scanning and reference IDs.</p>
+    </div>
+
+    <!-- Reports -->
+    <div class="glass feature-card p-6 flex flex-col items-center text-center">
+      <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-purple-400 to-fuchsia-500 shadow-lg shadow-purple-500/40 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 012-2h4m0 0v6m0-6l-6-6"/>
+        </svg>
+      </div>
+      <h3 class="font-semibold text-lg">Reports</h3>
+      <p class="text-slate-300 text-sm mt-1">Charts, CSV & PDF export.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="max-w-6xl mx-auto px-6 py-8 relative z-10 text-slate-400">© 2025 Attendease</footer>
+
+<script>
+// Typing animation
+const phrases = ["Offline attendance for rural schools", "Fast QR scanning & reports", "Reliable, low-cost & simple"];
+let pidx = 0, cidx = 0, forward = true;
+const el = document.getElementById('typing');
+function tick() {
+  const str = phrases[pidx];
+  if(forward) {
+    cidx++; el.textContent = str.slice(0,cidx);
+    if(cidx===str.length){ forward=false; setTimeout(tick,1200); return; }
+  } else {
+    cidx--; el.textContent = str.slice(0,cidx);
+    if(cidx===0){ forward=true; pidx=(pidx+1)%phrases.length; }
+  }
+  setTimeout(tick, 50);
+}
+tick();
+
+// Animated morphing background
+(function(){
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let shapes = [];
+  const colors = ['#22c55e','#10b981','#06b6d4','#3b82f6','#8b5cf6'];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for(let i=0;i<60;i++){
+    shapes.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      size: Math.random()*40+20,
+      dx: (Math.random()-0.5)*1.5,
+      dy: (Math.random()-0.5)*1.5,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      angle: Math.random()*Math.PI*2,
+      dAngle: (Math.random()-0.5)*0.03,
+      scale: Math.random()*0.5+0.5,
+      dScale: (Math.random()-0.5)*0.005
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    shapes.forEach(s=>{
+      s.x += s.dx; s.y += s.dy;
+      s.angle += s.dAngle; s.scale += s.dScale;
+      if(s.x<0||s.x>canvas.width) s.dx*=-1;
+      if(s.y<0||s.y>canvas.height) s.dy*=-1;
+      if(s.scale<0.3||s.scale>1) s.dScale*=-1;
+
+      ctx.save();
+      ctx.translate(s.x,s.y);
+      ctx.rotate(s.angle);
+      ctx.scale(s.scale,s.scale);
+      ctx.fillStyle = s.color;
+      ctx.beginPath();
+      ctx.moveTo(0,-s.size/2);
+      for(let j=1;j<6;j++){
+        const theta = j*Math.PI*2/5;
+        ctx.lineTo(Math.sin(theta)*s.size/2, -Math.cos(theta)*s.size/2);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>

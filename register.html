@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register School — Attendease</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* Background gradient animation */
+body {
+  background: linear-gradient(270deg, #0f172a, #1e293b, #0f766e, #1d4ed8);
+  background-size: 600% 600%;
+  animation: gradientShift 20s ease infinite;
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80') no-repeat center center / cover;
+  opacity: 0.25;
+  z-index: -1;
+}
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+}
+.creds {
+  font-family: monospace;
+  background: rgba(0,0,0,0.35);
+  padding: 10px;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="w-full max-w-2xl p-6">
+  <div class="glass p-8">
+    <h2 class="text-3xl font-bold">Register School</h2>
+    <p class="text-slate-300 mt-2">Provide basic details. One admin account will be generated and shown once.</p>
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <input id="name" placeholder="School name" class="p-3 rounded bg-transparent border border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+      <input id="location" placeholder="Location / City" class="p-3 rounded bg-transparent border border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+      <input id="website" placeholder="Website (optional)" class="p-3 rounded bg-transparent border border-white/10 col-span-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+      <input id="email" placeholder="Contact email/phone (optional)" class="p-3 rounded bg-transparent border border-white/10 col-span-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+    </div>
+    <div class="mt-6 flex items-center gap-3">
+      <button id="submit" class="px-6 py-3 bg-gradient-to-r from-green-300 to-emerald-500 text-[#042018] font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform">Register</button>
+      <a href="landing.html" class="text-slate-300 hover:text-white">Back</a>
+    </div>
+    <div id="output" class="mt-6 text-slate-200"></div>
+    <div id="login_area" class="mt-6 hidden">
+      <p class="text-slate-300">Click below to go to Login (credentials will then be hidden):</p>
+      <div class="mt-3">
+        <button id="go_login" class="px-6 py-2 bg-white/10 rounded-lg hover:bg-white/20">Go to Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function uid(p='id'){ return p+'_'+Math.random().toString(36).slice(2,9); }
+function lsGet(k,d){ try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;} }
+function lsSet(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
+
+document.getElementById('submit').onclick = ()=>{
+  const name = document.getElementById('name').value.trim();
+  const loc = document.getElementById('location').value.trim();
+  const web = document.getElementById('website').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if(!name){ alert('Enter school name'); return; }
+
+  let schools = lsGet('attendease_schools',[]);
+  if(schools.some(s=> s.name.toLowerCase()===name.toLowerCase())){
+    alert('A school with this name is already registered.');
+    return;
+  }
+
+  const school = { id: uid('sch'), name, location: loc, website: web, email, created: new Date().toISOString() };
+  schools.push(school);
+  lsSet('attendease_schools', schools);
+
+  let users = lsGet('attendease_users',[]);
+  const safeName = name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const username = (safeName + "_admin").toLowerCase();   // force lowercase
+  const password = Math.random().toString(36).slice(2,10);
+  const admin = { id: uid('u'), username, password, role:'admin', name: name+' Admin', schoolId: school.id };
+  users.push(admin);
+  lsSet('attendease_users', users);
+
+  if(!localStorage.getItem('attendease_classes')){
+    const cls=[];
+    for(let i=1;i<=12;i++){ ['A','B','C'].forEach(s=> cls.push({name:'Class '+i+s, number:i, section:s})); }
+    lsSet('attendease_classes', cls);
+  }
+
+  const out = document.getElementById('output');
+  out.innerHTML = `
+    <div class="creds">
+      School: <strong>${name}</strong><br/>
+      Admin username: <strong>${username}</strong><br/>
+      Password: <strong>${password}</strong>
+    </div>
+  `;
+  document.getElementById('login_area').classList.remove('hidden');
+  lsSet('attendease_show_creds_'+school.id, { username, password });
+};
+
+document.getElementById('go_login').onclick = ()=>{
+  const schools = lsGet('attendease_schools',[]);
+  if(schools.length>0){
+    const sid = schools[schools.length-1].id;
+    localStorage.removeItem('attendease_show_creds_'+sid);
+  }
+  window.location.href='login.html';
+};
+</script>
+</body>
+</html>

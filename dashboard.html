@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — Attendease</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{--bg:#05060a;--card:rgba(255,255,255,0.03)}
+body,html{height:100%;margin:0;background:linear-gradient(180deg,#020617 0%, #071023 100%);color:#e6eef0;font-family:Inter,system-ui,Arial;}
+.canvas-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+.glass{ background: var(--card); border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.6); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,0.04); }
+.card{ background:transparent; }
+small { color: #94a3b8; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas" class="canvas-bg"></canvas>
+<div class="flex relative" style="z-index:10; min-height:100vh">
+  <aside class="w-72 p-6 glass h-screen">
+    <div class="font-bold text-2xl mb-4">Attendease</div>
+    <div id="user_info" class="text-sm text-slate-300 mb-4"></div>
+    <div id="teacher_assign" class="text-xs text-slate-400 mb-4"></div>
+    <nav class="space-y-2">
+      <button id="nav-manage" class="w-full text-left px-3 py-2 rounded hover:bg-white/3">Manage</button>
+      <button id="nav-rep" class="w-full text-left px-3 py-2 rounded hover:bg-white/3">Reports</button>
+      <button id="nav-not" class="w-full text-left px-3 py-2 rounded hover:bg-white/3">Notifications</button>
+      <button id="nav-set" class="w-full text-left px-3 py-2 rounded hover:bg-white/3">Settings</button>
+    </nav>
+    <div class="mt-8"><button id="logout" class="px-3 py-2 rounded bg-white/5">Logout</button></div>
+  </aside>
+
+  <main class="flex-1 p-8">
+    <!-- Manage -->
+    <div id="view_manage" class="hidden">
+      <h2 class="text-2xl font-bold">Manage</h2>
+      <div class="grid grid-cols-3 gap-6 mt-6">
+        <div class="card p-4 glass">
+          <h3 class="font-semibold">Teachers</h3>
+          <div class="mt-3 flex gap-2">
+            <input id="add_teacher_name" class="p-2 rounded bg-[#071022] border border-white/6" placeholder="Teacher name" />
+            <button id="add_teacher_btn" class="px-3 py-2 bg-green-500 text-black rounded">Add</button>
+          </div>
+          <ul id="teacher_list" class="mt-3"></ul>
+        </div>
+
+        <div class="card p-4 glass">
+          <h3 class="font-semibold">Students <small>(Roll No shown)</small></h3>
+          <div class="mt-3 flex gap-2">
+            <input id="add_student_name" class="p-2 rounded bg-[#071022] border border-white/6" placeholder="Student name" />
+            <select id="add_student_class" class="p-2 rounded bg-[#071022] border border-white/6"></select>
+          </div>
+          <div class="mt-3 flex gap-2 items-center">
+            <select id="add_student_roll" class="p-2 rounded bg-[#071022] border border-white/6 w-28"></select>
+            <button id="add_student_btn" class="px-3 py-2 bg-green-500 text-black rounded">Add student</button>
+          </div>
+          <ul id="student_list" class="mt-3"></ul>
+        </div>
+
+        <div class="card p-4 glass">
+          <h3 class="font-semibold">Assignments</h3>
+          <div class="mt-3 space-y-2 flex flex-col">
+            <div class="flex gap-2 items-center">
+              <select id="assign_teacher" class="p-2 rounded bg-[#071022] border border-white/6 flex-1"></select>
+            </div>
+            <select id="assign_class" class="p-2 rounded bg-[#071022] border border-white/6"></select>
+            <button id="assign_btn" class="mt-2 px-3 py-2 bg-green-500 text-black rounded">Assign</button>
+          </div>
+          <div id="assign_list" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports -->
+    <div id="view_reports" class="hidden">
+      <h2 class="text-2xl font-bold">Reports</h2>
+      <div class="mt-4 card p-4 glass">
+        <div class="flex gap-3">
+          <select id="rep_class" class="p-2 rounded bg-[#071022] border border-white/6"></select>
+          <button id="rep_load_btn" class="px-3 py-2 bg-green-500 text-black rounded">Load</button>
+          <button id="rep_csv" class="px-3 py-2 bg-white/5 rounded">Export CSV</button>
+          <button id="rep_pdf" class="px-3 py-2 bg-white/5 rounded">Export PDF</button>
+        </div>
+        <div class="mt-4"><canvas id="rep_chart" width="50" height="50"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="view_notifications" class="hidden">
+      <h2 class="text-2xl font-bold">Notifications</h2>
+      <div class="mt-4 card p-4 glass">
+        <textarea id="notif_text" placeholder="Message" class="w-full p-2 rounded bg-[#071022] border border-white/6"></textarea>
+        <div class="mt-2"><button id="notif_send" class="px-3 py-2 bg-green-500 text-black rounded">Send</button></div>
+        <ul id="notif_inbox" class="mt-4"></ul>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="view_settings" class="hidden">
+      <h2 class="text-2xl font-bold">Settings</h2>
+      <div class="mt-4 card p-4 glass">
+        <button id="logout2" class="px-3 py-2 bg-white/5 rounded">Logout</button>
+        <div class="mt-4">
+          <h3 class="font-semibold">Danger Zone</h3>
+          <p class="text-sm text-slate-400">Delete your account and all related school data (admins only).</p>
+          <div class="mt-2">
+            <button id="delete_account" class="px-4 py-2 bg-red-600 rounded text-white">Delete Account and School</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="app_dashboard.js"></script>
+
+<!-- Animated background -->
+<script>
+(function(){
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+  const particles = [];
+  for(let i=0;i<100;i++){
+    particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*18+4, dx:(Math.random()-0.5)*0.8, dy:(Math.random()-0.5)*0.8, a: Math.random()*0.5+0.08 });
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x += p.dx; p.y += p.dy;
+      if(p.x< -50) p.x = canvas.width+50;
+      if(p.x> canvas.width+50) p.x = -50;
+      if(p.y< -50) p.y = canvas.height+50;
+      if(p.y> canvas.height+50) p.y = -50;
+      ctx.save();
+      ctx.globalAlpha = p.a;
+      ctx.beginPath();
+      ctx.fillStyle = '#06b6d4';
+      ctx.ellipse(p.x, p.y, p.r, p.r*0.6, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
